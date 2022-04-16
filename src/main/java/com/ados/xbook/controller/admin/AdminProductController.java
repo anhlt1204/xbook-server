@@ -2,7 +2,6 @@ package com.ados.xbook.controller.admin;
 
 import com.ados.xbook.controller.BaseController;
 import com.ados.xbook.domain.entity.SessionEntity;
-import com.ados.xbook.domain.request.CategoryRequest;
 import com.ados.xbook.domain.request.ProductRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.exception.InvalidException;
@@ -16,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/product")
-public class ProductAdminController extends BaseController {
+public class AdminProductController extends BaseController {
 
     @Autowired
     private ProductService productService;

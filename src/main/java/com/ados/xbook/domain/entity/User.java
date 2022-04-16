@@ -13,7 +13,10 @@ import java.util.List;
 public class User extends BaseEntity {
 
     @Nationalized
-    private String fullName;
+    private String firstName;
+
+    @Nationalized
+    private String lastName;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -24,19 +27,15 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String password;
 
-    private Long amount;
+    private Double amount;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
     private String phone;
 
     private String role;
-
-//    @ManyToMany
-//    @JoinTable(name = "tbl_users_roles",
-//            joinColumns = @JoinColumn(name = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id"))
-//    private List<Role> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore

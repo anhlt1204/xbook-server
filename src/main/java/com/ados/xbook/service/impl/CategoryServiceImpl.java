@@ -114,7 +114,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
             throw new InvalidException("Cannot find category has id " + id);
         } else {
             Category category = optional.get();
-            request.update(category);
+            category = request.update(category);
             category.setUpdateBy(request.getUsername());
             Optional<Category> parents = categoryRepo.findById(request.getParentsId());
 

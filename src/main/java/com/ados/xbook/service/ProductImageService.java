@@ -1,6 +1,5 @@
 package com.ados.xbook.service;
 
-import com.ados.xbook.domain.request.ProductImageRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -21,7 +21,10 @@ public class SessionEntity {
     private String id;
 
     @Nationalized
-    private String fullName;
+    private String firstName;
+
+    @Nationalized
+    private String lastName;
 
     private String username;
 
@@ -30,7 +33,7 @@ public class SessionEntity {
 
     private String role;
 
-    private Long amount;
+    private Double amount;
 
     private String email;
 
@@ -42,16 +45,15 @@ public class SessionEntity {
     @UpdateTimestamp
     private Date updateAt;
 
-    public SessionEntity(String id, String fullName, String username, String address, String role, Long amount, String email, String phone) {
+    public SessionEntity(String id, String firstName, String lastName, String username, String address, String role, Double amount, String email, String phone) {
         this.id = id;
-        this.fullName = fullName;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.address = address;
         this.role = role;
         this.amount = amount;
         this.email = email;
         this.phone = phone;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
     }
 }

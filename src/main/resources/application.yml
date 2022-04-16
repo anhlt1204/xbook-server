@@ -1,36 +1,36 @@
 spring:
   application:
-    name: social-network
+    name: xbook
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-#  datasource:
-#    url: jdbc:mysql://localhost/xbook?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
-#    username: root
-#    password: 123456789
-#  jpa:
-#    generate-ddl: true
-#    hibernate:
-#      ddl-auto: update
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.MySQL57Dialect
-#        storage_engine: innodb
-
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://ec2-52-201-124-168.compute-1.amazonaws.com:5432/dk99qfvger42l
-    username: pccjzlzxscfkiu
-    password: ffc62a666504fafe71778d80663f67614b8bcdde8565e9c8fcccf0f8ffa13674
-  data:
-    cassandra:
-      schema-action: create_if_not_exists
+    url: jdbc:mysql://localhost/xbook?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
+    username: root
+    password: 123456789
   jpa:
-    open-in-view: false
+    generate-ddl: true
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        storage_engine: innodb
+
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://ec2-52-201-124-168.compute-1.amazonaws.com:5432/dk99qfvger42l
+#    username: pccjzlzxscfkiu
+#    password: ffc62a666504fafe71778d80663f67614b8bcdde8565e9c8fcccf0f8ffa13674
+#  data:
+#    cassandra:
+#      schema-action: create_if_not_exists
+#  jpa:
+#    open-in-view: false
+#    hibernate:
+#      ddl-auto: update
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: ${XBOOK_SERVER_PORT:9999}
@@ -53,8 +53,8 @@ cloudinary:
 application:
   version: ${VERSION:1.0}
   swagger:
-#    base-uri: localhost
-    base-uri: https://xbook-ados.herokuapp.com/
+    base-uri: localhost
+#    base-uri: https://xbook-ados.herokuapp.com/
 
 user:
   username: admin
@@ -63,3 +63,10 @@ user:
   fullname: ADMIN
   address: Hanoi
   phone: 0123456789
+
+#logging:
+#  level.org.springframework: info
+#  file:
+#    path: /
+#    name: log.txt
+

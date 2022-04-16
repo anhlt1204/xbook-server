@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/productImage")
-public class ProductImageAdminController extends BaseController {
+public class AdminProductImageController extends BaseController {
 
     @Autowired
     private ProductImageService productImageService;
@@ -85,6 +85,5 @@ public class ProductImageAdminController extends BaseController {
 
         return response;
     }
-
 
 }

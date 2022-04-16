@@ -1,4 +1,4 @@
-package com.ados.xbook.controller.user;
+package com.ados.xbook.controller.publicCtrl;
 
 import com.ados.xbook.controller.BaseController;
 import com.ados.xbook.domain.response.base.BaseResponse;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/public/category")
-public class CategoryController extends BaseController {
+public class PublicCategoryController extends BaseController {
     @Autowired
     private CategoryService categoryService;
 

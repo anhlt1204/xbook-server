@@ -66,7 +66,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
             response.setToken(token);
             response.setSuccess();
 
-            SessionEntity session = new SessionEntity(token, user.getFullName(),
+            SessionEntity session = new SessionEntity(token, user.getFirstName(), user.getLastName(),
                     user.getUsername(), user.getAddress(), user.getRole(), user.getAmount(),
                     user.getEmail(), user.getPhone());
 

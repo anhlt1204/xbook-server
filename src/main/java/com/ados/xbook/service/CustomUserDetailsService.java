@@ -40,8 +40,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public com.ados.xbook.domain.entity.User save(RegisterRequest request) {
         com.ados.xbook.domain.entity.User user = new com.ados.xbook.domain.entity.User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setPassword(bcryptEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
         user.setRole(ERole.USER.toString());
         user.setCreateBy(request.getUsername());
 

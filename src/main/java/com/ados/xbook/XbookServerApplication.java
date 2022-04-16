@@ -22,7 +22,7 @@ public class XbookServerApplication implements CommandLineRunner {
     }
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		if (repo.findFirstByUsername("admin") == null) {
 			User user = new User();
 			user.setUsername("admin");
@@ -30,4 +30,5 @@ public class XbookServerApplication implements CommandLineRunner {
 			service.createAdmin(user);
 		}
 	}
+
 }

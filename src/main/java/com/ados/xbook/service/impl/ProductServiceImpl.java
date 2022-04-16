@@ -77,7 +77,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             throw new InvalidException("Cannot find product has id " + id);
         } else {
             Product product = optional.get();
-            request.update(product);
+            product = request.update(product);
             product.setUpdateBy(request.getUsername());
 
             Optional<Category> categoryOptional = categoryRepo.findById(request.getCategoryId());
