@@ -20,9 +20,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://ec2-52-201-124-168.compute-1.amazonaws.com:5432/dk99qfvger42l
-    username: pccjzlzxscfkiu
-    password: ffc62a666504fafe71778d80663f67614b8bcdde8565e9c8fcccf0f8ffa13674
+    url: jdbc:postgresql://ec2-34-194-158-176.compute-1.amazonaws.com:5432/d8mbr94t010d6b
+    username: nfgnzdnefakzkv
+    password: 05565ba05b2bc6f344f1dc8d9a3f2a343748cdc26d1d4d58a928316ed4b2b273
   data:
     cassandra:
       schema-action: create_if_not_exists
