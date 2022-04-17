@@ -4,7 +4,11 @@ import com.ados.xbook.domain.request.ProductRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 
 public interface ProductService {
-    BaseResponse findAll();
+    BaseResponse findAll(Long categoryId, String key, String value, Integer page, Integer size);
+
+    BaseResponse findById(Long id);
+
+    BaseResponse findBySlug(String slug);
 
     BaseResponse create(ProductRequest request);
 

@@ -42,8 +42,8 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
         Product product = productRepo.findById(productId).orElse(null);
 
         productImages = productImageRepo.findAllByProduct(product);
-        response.setTotal(productImages.size());
-        response.setRows(productImages);
+        response.setTotalItem(productImages.size());
+        response.setData(productImages);
         response.setSuccess();
 
         return response;
@@ -71,8 +71,8 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
             }
 
             productImageRepo.saveAll(list);
-            response.setRows(list);
-            response.setTotal(list.size());
+            response.setData(list);
+            response.setTotalItem(list.size());
             response.setSuccess();
         } catch (Exception e) {
             log.error("Ex: {}", e);

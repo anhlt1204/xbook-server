@@ -2,32 +2,33 @@ package com.ados.xbook.controller.publicCtrl;
 
 import com.ados.xbook.controller.BaseController;
 import com.ados.xbook.domain.response.base.BaseResponse;
-import com.ados.xbook.service.CategoryService;
+import com.ados.xbook.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/public/category")
-public class PublicCategoryController extends BaseController {
+@RequestMapping("/public/product")
+public class PublicProductController extends BaseController {
 
     @Autowired
-    private CategoryService categoryService;
+    private ProductService productService;
 
     @GetMapping
-    public BaseResponse findAll(@RequestParam(value = "key", required = false) String key,
+    public BaseResponse findAll(@RequestParam(value = "categoryId", required = false) Long categoryId,
+                                @RequestParam(value = "key", required = false) String key,
                                 @RequestParam(value = "value", required = false) String value,
                                 @RequestParam(value = "page", required = false) Integer page,
                                 @RequestParam(value = "size", required = false) Integer size) {
 
         BaseResponse response;
 
-        log.info("=>findAll key: {}, value: {}, page: {}, size: {}",
-                key, value, page, size);
+        log.info("=>findAll categoryId: {}, key: {}, value: {}, page: {}, size: {}",
+                categoryId, key, value, page, size);
 
-        response = categoryService.findAll(key, value, page, size);
+        response = productService.findAll(categoryId, key, value, page, size);
 
-        log.info("<=findAll key: {}, value: {}, page: {}, size: {}, res: {}",
-                key, value, page, size, response);
+        log.info("<=findAll categoryId: {}, key: {}, value: {}, page: {}, size: {}, res: {}",
+                categoryId, key, value, page, size, response);
 
         return response;
 
@@ -40,7 +41,7 @@ public class PublicCategoryController extends BaseController {
 
         log.info("=>findById");
 
-        response = categoryService.findById(id);
+        response = productService.findById(id);
 
         log.info("<=findById");
 
@@ -55,7 +56,7 @@ public class PublicCategoryController extends BaseController {
 
         log.info("=>findBySlug");
 
-        response = categoryService.findBySlug(slug);
+        response = productService.findBySlug(slug);
 
         log.info("<=findBySlug");
 

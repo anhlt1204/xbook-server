@@ -4,7 +4,7 @@ import com.ados.xbook.domain.request.CategoryRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 
 public interface CategoryService {
-    BaseResponse findAll();
+    BaseResponse findAll(String key, String value, Integer page, Integer size);
 
     BaseResponse findById(Long id);
 

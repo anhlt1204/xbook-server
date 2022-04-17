@@ -7,15 +7,22 @@ import com.ados.xbook.domain.response.base.CreateResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
 import com.ados.xbook.domain.response.base.GetSingleResponse;
 import com.ados.xbook.exception.InvalidException;
+import com.ados.xbook.helper.PagingInfo;
 import com.ados.xbook.repository.CategoryRepo;
 import com.ados.xbook.service.BaseService;
 import com.ados.xbook.service.CategoryService;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl extends BaseService implements CategoryService {
@@ -24,15 +31,70 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     private CategoryRepo categoryRepo;
 
     @Override
-    public BaseResponse findAll() {
+    public BaseResponse findAll(String key, String value, Integer page, Integer size) {
 
         GetArrayResponse<Category> response = new GetArrayResponse<>();
-
+        PagingInfo pagingInfo = PagingInfo.parse(page, size);
+        Long total = 0L;
+        Pageable paging;
+        Page<Category> p;
         List<Category> categories = new ArrayList<>();
 
-        categories = categoryRepo.findAll();
-        response.setTotal(categories.size());
-        response.setRows(categories);
+        if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value)) {
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize());
+            p = categoryRepo.findAll(paging);
+            categories = p.getContent();
+            total = p.getTotalElements();
+        }
+
+        if (!Strings.isNullOrEmpty(key)) {
+            switch (key.trim().toUpperCase()) {
+                case "NAME":
+                    categories = categoryRepo.findAllByNameLike("%" + value + "%");
+                    total = Long.valueOf(categories.size());
+                    break;
+                case "FILTER":
+                    switch (value.trim().toUpperCase()) {
+                        case "ZA":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("name").descending());
+                            p = categoryRepo.findAll(paging);
+                            categories = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        case "AZ":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("name"));
+                            p = categoryRepo.findAll(paging);
+                            categories = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        case "OLD":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                            p = categoryRepo.findAll(paging);
+                            categories = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        default:
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                            p = categoryRepo.findAll(paging);
+                            categories = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                    }
+                    break;
+                default:
+                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                    p = categoryRepo.findAll(paging);
+                    categories = p.getContent();
+                    total = p.getTotalElements();
+                    break;
+            }
+        }
+
+        response.setTotalItem(total);
+        response.setCurrentPage(pagingInfo.getPage() + 1);
+        response.setTotalPage(total % pagingInfo.getSize() == 0 ?
+                total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
+        response.setData(categories);
         response.setSuccess();
 
         return response;
@@ -82,6 +144,15 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
 
         CreateResponse<Category> response = new CreateResponse<>();
 
+        List<Category> categories = categoryRepo.findAll();
+        List<String> names = categories.stream()
+                .map(Category::getName)
+                .collect(Collectors.toList());
+
+        if (names.contains(request.getName())) {
+            throw new InvalidException("Name is already exist");
+        }
+
         Category category = request.create();
         category.setCreateBy(request.getUsername());
         Optional<Category> parents = categoryRepo.findById(request.getParentsId());
@@ -114,6 +185,18 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
             throw new InvalidException("Cannot find category has id " + id);
         } else {
             Category category = optional.get();
+
+            List<Category> categories = categoryRepo.findAll();
+            List<String> names = categories.stream()
+                    .map(Category::getName)
+                    .collect(Collectors.toList());
+
+            names.remove(category.getName());
+
+            if (names.contains(request.getName())) {
+                throw new InvalidException("Name is already exist");
+            }
+
             category = request.update(category);
             category.setUpdateBy(request.getUsername());
             Optional<Category> parents = categoryRepo.findById(request.getParentsId());

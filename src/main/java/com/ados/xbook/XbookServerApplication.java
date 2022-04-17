@@ -11,24 +11,26 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class XbookServerApplication implements CommandLineRunner {
 
-	@Autowired
-	private CustomUserDetailsService service;
+    @Autowired
+    private CustomUserDetailsService service;
 
-	@Autowired
-	private UserRepo repo;
+    @Autowired
+    private UserRepo repo;
 
     public static void main(String[] args) {
         SpringApplication.run(XbookServerApplication.class, args);
     }
 
-	@Override
-	public void run(String... args) {
-		if (repo.findFirstByUsername("admin") == null) {
-			User user = new User();
-			user.setUsername("admin");
-			user.setPassword("admin");
-			service.createAdmin(user);
-		}
-	}
+    @Override
+    public void run(String... args) {
+        if (repo.findFirstByUsername("admin") == null) {
+            User user = new User();
+            user.setEmail("admin@gmail.com");
+            user.setPhone("0987654321");
+            user.setUsername("admin");
+            user.setPassword("Admin123!");
+            service.createAdmin(user);
+        }
+    }
 
 }

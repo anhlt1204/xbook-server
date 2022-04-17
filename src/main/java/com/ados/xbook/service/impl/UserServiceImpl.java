@@ -37,8 +37,8 @@ public class UserServiceImpl extends BaseService implements UserService {
         List<User> users = new ArrayList<>();
 
         users = userRepo.findAll();
-        response.setTotal(users.size());
-        response.setRows(users);
+        response.setTotalItem(users.size());
+        response.setData(users);
         response.setSuccess();
 
         return response;

@@ -22,6 +22,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AuthServiceImpl extends BaseService implements AuthService {
 
@@ -84,6 +87,31 @@ public class AuthServiceImpl extends BaseService implements AuthService {
     public BaseResponse register(RegisterRequest request) {
 
         RegisterResponse response = new RegisterResponse();
+
+        List<User> users = userRepo.findAll();
+        List<String> usernames = users.stream()
+                .map(User::getUsername)
+                .collect(Collectors.toList());
+
+        List<String> emails = users.stream()
+                .map(User::getEmail)
+                .collect(Collectors.toList());
+
+        List<String> phones = users.stream()
+                .map(User::getPhone)
+                .collect(Collectors.toList());
+
+        if (usernames.contains(request.getUsername())) {
+            throw new InvalidException("Username is already exist");
+        }
+
+        if (emails.contains(request.getEmail())) {
+            throw new InvalidException("Email is already exist");
+        }
+
+        if (phones.contains(request.getPhone())) {
+            throw new InvalidException("Phone number is already exist");
+        }
 
         try {
             userDetailsService.save(request);

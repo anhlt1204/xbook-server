@@ -1,5 +1,6 @@
 package com.ados.xbook.domain.response.base;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -9,12 +10,20 @@ import java.util.List;
 @Data
 public class GetArrayResponse<T> extends BaseResponse {
 
-    private long total;
-    private List<T> rows;
+    @JsonProperty("current_page")
+    private long currentPage;
+
+    @JsonProperty("total_page")
+    private long totalPage;
+
+    @JsonProperty("total_item")
+    private long totalItem;
+
+    private List<T> data;
 
     @Override
     public String info() {
-        return super.info() + "|total=" + total + "|rows.size()=" + (rows != null ? rows.size() : 0);
+        return super.info() + "|total=" + totalItem + "|data.size()=" + (data != null ? data.size() : 0);
     }
 
 }
