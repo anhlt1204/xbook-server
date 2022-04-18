@@ -43,6 +43,7 @@ public class CategoryRequest {
 
         category.setName(name);
         category.setDescription(description);
+        category.setSlug(StringHelper.toSlug(name));
 
         return category;
     }

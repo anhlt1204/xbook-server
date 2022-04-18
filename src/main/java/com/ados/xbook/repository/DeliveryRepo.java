@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DeliveryRepo extends JpaRepository<Delivery, Long> {
+    Delivery findFirstByIndex(String index);
 }

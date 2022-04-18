@@ -56,8 +56,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             if (!Strings.isNullOrEmpty(key)) {
                 switch (key.trim().toUpperCase()) {
                     case "TITLE":
-                        products = productRepo.findAllByTitleLike("%" + value + "%");
-                        total = Long.valueOf(products.size());
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = productRepo.findAllByTitleLike("%" + value + "%", paging);
+                        products = p.getContent();
+                        total = p.getTotalElements();
                         break;
                     case "FILTER":
                         switch (value.trim().toUpperCase()) {
@@ -111,8 +113,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             if (!Strings.isNullOrEmpty(key)) {
                 switch (key.trim().toUpperCase()) {
                     case "TITLE":
-                        products = productRepo.findAllByCategoryAndTitleLike(category, "%" + value + "%");
-                        total = Long.valueOf(products.size());
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = productRepo.findAllByCategoryAndTitleLike(category, "%" + value + "%", paging);
+                        products = p.getContent();
+                        total = p.getTotalElements();
                         break;
                     case "FILTER":
                         switch (value.trim().toUpperCase()) {

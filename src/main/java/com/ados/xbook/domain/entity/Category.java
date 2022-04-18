@@ -16,12 +16,14 @@ import java.util.List;
 public class Category extends BaseEntity {
 
     @Nationalized
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Lob
     @Nationalized
     private String description;
 
+    @Column(nullable = false, unique = true)
     private String slug;
 
     @ManyToOne

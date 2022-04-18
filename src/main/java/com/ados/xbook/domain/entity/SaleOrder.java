@@ -26,7 +26,7 @@ public class SaleOrder extends BaseEntity{
     private Delivery delivery;
 
     @OneToMany(mappedBy = "saleOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
+//    @JsonIgnore
     @JsonManagedReference
     private List<OrderItem> orderItems;
 }

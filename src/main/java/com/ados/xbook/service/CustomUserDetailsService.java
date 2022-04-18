@@ -48,6 +48,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setPhone(request.getPhone());
         user.setAddress(request.getAddress());
         user.setRole(ERole.USER.toString());
+        user.setAmount(0D);
         user.setCreateBy(request.getUsername());
 
         return userRepo.save(user);

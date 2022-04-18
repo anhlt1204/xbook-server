@@ -19,7 +19,7 @@ public abstract class BaseEntity implements Serializable {
     private Long id;
 
     @Column(columnDefinition = "int default 0")
-    private Integer status;
+    private Integer status = 0;
 
     @CreationTimestamp
     private Date createAt;

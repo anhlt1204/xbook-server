@@ -14,9 +14,9 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
 
     Product findFirstBySlug(String slug);
 
-    List<Product> findAllByTitleLike(String title);
+    Page<Product> findAllByTitleLike(String title, Pageable pageable);
 
-    List<Product> findAllByCategoryAndTitleLike(Category category, String title);
+    Page<Product> findAllByCategoryAndTitleLike(Category category, String title, Pageable pageable);
 
     Page<Product> findAllByCategory(Category category, Pageable pageable);
 

@@ -16,6 +16,7 @@ import java.util.List;
 public class Product extends BaseEntity {
 
     @Nationalized
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Nationalized
@@ -40,11 +41,13 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
     @JsonProperty("order_items")
+    @JsonManagedReference
     private List<OrderItem> orderItems;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
     @JsonProperty("product_rates")
+    @JsonManagedReference
     private List<ProductRate> productRates;
 
     private Double price;
@@ -58,6 +61,7 @@ public class Product extends BaseEntity {
     @JsonProperty("number_of_page")
     private Integer numberOfPage;
 
+    @Column(nullable = false, unique = true)
     private String slug;
 
     @JsonProperty("quantity_selled")

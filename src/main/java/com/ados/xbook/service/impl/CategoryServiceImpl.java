@@ -2,6 +2,7 @@ package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.Category;
 import com.ados.xbook.domain.request.CategoryRequest;
+import com.ados.xbook.domain.response.CategoryResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.domain.response.base.CreateResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
@@ -33,7 +34,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Override
     public BaseResponse findAll(String key, String value, Integer page, Integer size) {
 
-        GetArrayResponse<Category> response = new GetArrayResponse<>();
+        GetArrayResponse<CategoryResponse> response = new GetArrayResponse<>();
         PagingInfo pagingInfo = PagingInfo.parse(page, size);
         Long total = 0L;
         Pageable paging;
@@ -50,8 +51,12 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
         if (!Strings.isNullOrEmpty(key)) {
             switch (key.trim().toUpperCase()) {
                 case "NAME":
-                    categories = categoryRepo.findAllByNameLike("%" + value + "%");
-                    total = Long.valueOf(categories.size());
+//                    categories = categoryRepo.findAllByNameLike("%" + value + "%");
+//                    total = Long.valueOf(categories.size());
+                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                    p = categoryRepo.findAllByNameLike("%" + value + "%", paging);
+                    categories = p.getContent();
+                    total = p.getTotalElements();
                     break;
                 case "FILTER":
                     switch (value.trim().toUpperCase()) {
@@ -90,11 +95,17 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
             }
         }
 
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+
+        for (Category c : categories) {
+            categoryResponses.add(new CategoryResponse(c));
+        }
+
         response.setTotalItem(total);
         response.setCurrentPage(pagingInfo.getPage() + 1);
         response.setTotalPage(total % pagingInfo.getSize() == 0 ?
                 total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
-        response.setData(categories);
+        response.setData(categoryResponses);
         response.setSuccess();
 
         return response;
@@ -104,7 +115,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Override
     public BaseResponse findById(Long id) {
 
-        GetSingleResponse<Category> response = new GetSingleResponse<>();
+        GetSingleResponse<CategoryResponse> response = new GetSingleResponse<>();
 
         Optional<Category> optional = categoryRepo.findById(id);
         Category category;
@@ -113,7 +124,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
             throw new InvalidException("Cannot find category has id " + id);
         } else {
             category = optional.get();
-            response.setItem(category);
+            response.setItem(new CategoryResponse(category));
             response.setSuccess();
         }
 
@@ -124,14 +135,14 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Override
     public BaseResponse findBySlug(String slug) {
 
-        GetSingleResponse<Category> response = new GetSingleResponse<>();
+        GetSingleResponse<CategoryResponse> response = new GetSingleResponse<>();
 
         Category category = categoryRepo.findFirstBySlug(slug);
 
         if (category == null) {
             throw new InvalidException("Cannot find category has slug " + slug);
         } else {
-            response.setItem(category);
+            response.setItem(new CategoryResponse(category));
             response.setSuccess();
         }
 
@@ -142,7 +153,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Override
     public BaseResponse create(CategoryRequest request) {
 
-        CreateResponse<Category> response = new CreateResponse<>();
+        CreateResponse<CategoryResponse> response = new CreateResponse<>();
 
         List<Category> categories = categoryRepo.findAll();
         List<String> names = categories.stream()
@@ -167,7 +178,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
         }
 
         categoryRepo.save(category);
-        response.setItem(category);
+        response.setItem(new CategoryResponse(category));
         response.setSuccess();
 
         return response;
@@ -177,7 +188,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     @Override
     public BaseResponse update(Long id, CategoryRequest request) {
 
-        GetSingleResponse<Category> response = new GetSingleResponse<>();
+        GetSingleResponse<CategoryResponse> response = new GetSingleResponse<>();
 
         Optional<Category> optional = categoryRepo.findById(id);
 
@@ -212,7 +223,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
 
             categoryRepo.save(category);
 
-            response.setItem(category);
+            response.setItem(new CategoryResponse(category));
             response.setSuccess();
         }
 

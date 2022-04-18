@@ -5,32 +5,32 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-#  datasource:
-#    url: jdbc:mysql://localhost/xbook?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
-#    username: root
-#    password: 123456789
-#  jpa:
-#    generate-ddl: true
-#    hibernate:
-#      ddl-auto: update
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.MySQL57Dialect
-#        storage_engine: innodb
-
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://ec2-34-194-158-176.compute-1.amazonaws.com:5432/d8mbr94t010d6b
-    username: nfgnzdnefakzkv
-    password: 05565ba05b2bc6f344f1dc8d9a3f2a343748cdc26d1d4d58a928316ed4b2b273
-  data:
-    cassandra:
-      schema-action: create_if_not_exists
+    url: jdbc:mysql://localhost/xbook?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false
+    username: root
+    password: 123456789
   jpa:
-    open-in-view: false
+    generate-ddl: true
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        storage_engine: innodb
+
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://ec2-34-194-158-176.compute-1.amazonaws.com:5432/d8mbr94t010d6b
+#    username: nfgnzdnefakzkv
+#    password: 05565ba05b2bc6f344f1dc8d9a3f2a343748cdc26d1d4d58a928316ed4b2b273
+#  data:
+#    cassandra:
+#      schema-action: create_if_not_exists
+#  jpa:
+#    open-in-view: false
+#    hibernate:
+#      ddl-auto: update
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: ${XBOOK_SERVER_PORT:9999}

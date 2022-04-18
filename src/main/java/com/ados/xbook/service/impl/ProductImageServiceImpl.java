@@ -50,6 +50,24 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
     }
 
     @Override
+    public BaseResponse findById(Long id) {
+        GetSingleResponse<ProductImage> response = new GetSingleResponse<>();
+
+        Optional<ProductImage> optional = productImageRepo.findById(id);
+
+        if (!optional.isPresent()) {
+            throw new InvalidException("Cannot find image has id " + id);
+        }
+
+        ProductImage productImage = optional.get();
+
+        response.setItem(productImage);
+        response.setSuccess();
+
+        return response;
+    }
+
+    @Override
     public BaseResponse create(Long productId, MultipartFile[] images, String username) {
         GetArrayResponse<ProductImage> response = new GetArrayResponse<>();
 
