@@ -23,6 +23,21 @@ public class UserController extends BaseController {
     @Autowired
     private SessionEntityRepo repo;
 
+    @GetMapping("/info")
+    public BaseResponse getCurrentUser(@RequestHeader Map<String, String> headers) {
+        BaseResponse response;
+        String token = headers.get("authorization");
+        SessionEntity info = StringHelper.info(token, repo);
+
+        log.info("=>getCurrentUser info: {}", info);
+
+        response = userService.getCurrentUser(info);
+
+        log.info("<=getCurrentUser info: {}, res: {}", info, response);
+
+        return response;
+    }
+
     @PutMapping("/{id}")
     public BaseResponse update(@RequestHeader Map<String, String> headers,
                                @PathVariable(name = "id") Long id,

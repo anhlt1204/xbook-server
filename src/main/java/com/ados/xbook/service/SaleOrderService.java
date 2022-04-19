@@ -10,6 +10,10 @@ public interface SaleOrderService {
 
     BaseResponse addToCard(SessionEntity info, AddToCardRequest request);
 
+    BaseResponse removeFromCard(SessionEntity info, AddToCardRequest request);
+
     BaseResponse getCurrentCart(SessionEntity info);
+
+    BaseResponse payment(SessionEntity info);
 
 }

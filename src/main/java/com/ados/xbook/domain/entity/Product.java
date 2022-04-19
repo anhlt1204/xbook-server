@@ -1,5 +1,6 @@
 package com.ados.xbook.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,16 +39,12 @@ public class Product extends BaseEntity {
     @JsonProperty("product_images")
     private List<ProductImage> productImages;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product")
     @JsonIgnore
-    @JsonProperty("order_items")
-    @JsonManagedReference
     private List<OrderItem> orderItems;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product")
     @JsonIgnore
-    @JsonProperty("product_rates")
-    @JsonManagedReference
     private List<ProductRate> productRates;
 
     private Double price;

@@ -1,8 +1,10 @@
 package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.ERole;
+import com.ados.xbook.domain.entity.SessionEntity;
 import com.ados.xbook.domain.entity.User;
 import com.ados.xbook.domain.request.UserRequest;
+import com.ados.xbook.domain.response.UserResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.domain.response.base.CreateResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
@@ -14,6 +16,7 @@ import com.ados.xbook.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +35,17 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Override
     public BaseResponse findAll() {
 
-        GetArrayResponse<User> response = new GetArrayResponse<>();
+        GetArrayResponse<UserResponse> response = new GetArrayResponse<>();
 
-        List<User> users = new ArrayList<>();
+        List<User> users = userRepo.findAll();
+        List<UserResponse> userResponses = new ArrayList<>();
 
-        users = userRepo.findAll();
+        for (User u : users) {
+            userResponses.add(new UserResponse(u));
+        }
+
         response.setTotalItem(users.size());
-        response.setData(users);
+        response.setData(userResponses);
         response.setSuccess();
 
         return response;
@@ -48,7 +55,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Override
     public BaseResponse findById(Long id) {
 
-        GetSingleResponse<User> response = new GetSingleResponse<>();
+        GetSingleResponse<UserResponse> response = new GetSingleResponse<>();
 
         Optional<User> optional = userRepo.findById(id);
         User user;
@@ -57,7 +64,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             throw new InvalidException("Cannot find user has id " + id);
         } else {
             user = optional.get();
-            response.setItem(user);
+            response.setItem(new UserResponse(user));
             response.setSuccess();
         }
 
@@ -68,14 +75,14 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Override
     public BaseResponse findByUsername(String username) {
 
-        GetSingleResponse<User> response = new GetSingleResponse<>();
+        GetSingleResponse<UserResponse> response = new GetSingleResponse<>();
 
         User user = userRepo.findFirstByUsername(username);
 
         if (user == null) {
             throw new InvalidException("Cannot find user has username " + username);
         } else {
-            response.setItem(user);
+            response.setItem(new UserResponse(user));
             response.setSuccess();
         }
 
@@ -84,17 +91,39 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @Override
+    public BaseResponse getCurrentUser(SessionEntity info) {
+        return findByUsername(info.getUsername());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse create(UserRequest request) {
 
-        CreateResponse<User> response = new CreateResponse<>();
+        CreateResponse<UserResponse> response = new CreateResponse<>();
 
         List<User> users = userRepo.findAll();
         List<String> usernames = users.stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
 
+        List<String> emails = users.stream()
+                .map(User::getEmail)
+                .collect(Collectors.toList());
+
+        List<String> phones = users.stream()
+                .map(User::getPhone)
+                .collect(Collectors.toList());
+
         if (usernames.contains(request.getUsername())) {
             throw new InvalidException("Username is already exist");
+        }
+
+        if (emails.contains(request.getEmail())) {
+            throw new InvalidException("Email is already exist");
+        }
+
+        if (phones.contains(request.getPhone())) {
+            throw new InvalidException("Phone number is already exist");
         }
 
         User user = request.create();
@@ -102,16 +131,17 @@ public class UserServiceImpl extends BaseService implements UserService {
         user.setCreateBy(request.getCreateBy());
 
         userRepo.save(user);
-        response.setItem(user);
+        response.setItem(new UserResponse(user));
         response.setSuccess();
 
         return response;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse update(Long id, UserRequest request) {
 
-        GetSingleResponse<User> response = new GetSingleResponse<>();
+        GetSingleResponse<UserResponse> response = new GetSingleResponse<>();
 
         Optional<User> optional = userRepo.findById(id);
 
@@ -128,18 +158,35 @@ public class UserServiceImpl extends BaseService implements UserService {
             List<String> usernames = users.stream()
                     .map(User::getUsername)
                     .collect(Collectors.toList());
-
             usernames.remove(user.getUsername());
+
+            List<String> emails = users.stream()
+                    .map(User::getEmail)
+                    .collect(Collectors.toList());
+            emails.remove(user.getEmail());
+
+            List<String> phones = users.stream()
+                    .map(User::getPhone)
+                    .collect(Collectors.toList());
+            phones.remove(user.getPhone());
 
             if (usernames.contains(request.getUsername())) {
                 throw new InvalidException("Username is already exist");
+            }
+
+            if (emails.contains(request.getEmail())) {
+                throw new InvalidException("Email is already exist");
+            }
+
+            if (phones.contains(request.getPhone())) {
+                throw new InvalidException("Phone number is already exist");
             }
 
             user = request.update(user);
             user.setUpdateBy(request.getCreateBy());
 
             userRepo.save(user);
-            response.setItem(user);
+            response.setItem(new UserResponse(user));
             response.setSuccess();
         }
 
@@ -148,6 +195,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteById(String username, String role, Long id) {
 
         BaseResponse response = new BaseResponse();

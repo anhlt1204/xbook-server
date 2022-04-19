@@ -14,6 +14,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse create(Long productId, MultipartFile[] images, String username) {
         GetArrayResponse<ProductImage> response = new GetArrayResponse<>();
 
@@ -101,6 +103,7 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse update(Long id, Long productId, MultipartFile image, String username) {
 
         GetSingleResponse<ProductImage> response = new GetSingleResponse<>();
@@ -144,6 +147,7 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteById(String username, Long id) {
 
         BaseResponse response = new BaseResponse();

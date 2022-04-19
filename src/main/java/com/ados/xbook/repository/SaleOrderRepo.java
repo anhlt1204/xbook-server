@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SaleOrderRepo extends JpaRepository<SaleOrder, Long> {
-    SaleOrder findFirstByStatus(Integer status);
+    SaleOrder findFirstByStatusAndCreateBy(Integer status, String username);
 
     Page<SaleOrder> findAllByCreateByOrderByCreateAtDesc(String username, Pageable pageable);
 }

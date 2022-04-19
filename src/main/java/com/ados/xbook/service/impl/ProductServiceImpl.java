@@ -3,6 +3,7 @@ package com.ados.xbook.service.impl;
 import com.ados.xbook.domain.entity.Category;
 import com.ados.xbook.domain.entity.Product;
 import com.ados.xbook.domain.request.ProductRequest;
+import com.ados.xbook.domain.response.ProductResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.domain.response.base.CreateResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Override
     public BaseResponse findAll(Long categoryId, String key, String value, Integer page, Integer size) {
-        GetArrayResponse<Product> response = new GetArrayResponse<>();
+        GetArrayResponse<ProductResponse> response = new GetArrayResponse<>();
         PagingInfo pagingInfo = PagingInfo.parse(page, size);
         Long total = 0L;
         Pageable paging;
@@ -46,7 +48,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         List<Product> products = new ArrayList<>();
 
         if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value) && (categoryId == null || categoryId <= 0)) {
-            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize());
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
             p = productRepo.findAll(paging);
             products = p.getContent();
             total = p.getTotalElements();
@@ -156,11 +158,17 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             }
         }
 
+        List<ProductResponse> productResponses = new ArrayList<>();
+
+        for (Product product : products) {
+            productResponses.add(new ProductResponse(product));
+        }
+
         response.setTotalItem(total);
         response.setCurrentPage(pagingInfo.getPage() + 1);
         response.setTotalPage(total % pagingInfo.getSize() == 0 ?
                 total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
-        response.setData(products);
+        response.setData(productResponses);
         response.setSuccess();
 
         return response;
@@ -169,7 +177,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Override
     public BaseResponse findById(Long id) {
 
-        GetSingleResponse<Product> response = new GetSingleResponse<>();
+        GetSingleResponse<ProductResponse> response = new GetSingleResponse<>();
 
         Optional<Product> optional = productRepo.findById(id);
         Product product;
@@ -178,7 +186,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             throw new InvalidException("Cannot find product has id " + id);
         } else {
             product = optional.get();
-            response.setItem(product);
+            response.setItem(new ProductResponse(product));
             response.setSuccess();
         }
 
@@ -189,14 +197,14 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Override
     public BaseResponse findBySlug(String slug) {
 
-        GetSingleResponse<Product> response = new GetSingleResponse<>();
+        GetSingleResponse<ProductResponse> response = new GetSingleResponse<>();
 
         Product product = productRepo.findFirstBySlug(slug);
 
         if (product == null) {
             throw new InvalidException("Cannot find product has slug " + slug);
         } else {
-            response.setItem(product);
+            response.setItem(new ProductResponse(product));
             response.setSuccess();
         }
 
@@ -205,9 +213,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse create(ProductRequest request) {
 
-        CreateResponse<Product> response = new CreateResponse<>();
+        CreateResponse<ProductResponse> response = new CreateResponse<>();
 
         List<Product> products = productRepo.findAll();
         List<String> titles = products.stream().map(Product::getTitle).collect(Collectors.toList());
@@ -229,7 +238,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         }
 
         productRepo.save(product);
-        response.setItem(product);
+        response.setItem(new ProductResponse(product));
         response.setSuccess();
 
         return response;
@@ -237,9 +246,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse update(Long id, ProductRequest request) {
 
-        GetSingleResponse<Product> response = new GetSingleResponse<>();
+        GetSingleResponse<ProductResponse> response = new GetSingleResponse<>();
 
         Optional<Product> optional = productRepo.findById(id);
 
@@ -269,7 +279,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             }
 
             productRepo.save(product);
-            response.setItem(product);
+            response.setItem(new ProductResponse(product));
             response.setSuccess();
         }
 
@@ -278,6 +288,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteById(String username, Long id) {
 
         BaseResponse response = new BaseResponse();

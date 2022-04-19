@@ -21,6 +21,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
     private JwtUtil jwtUtil;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse login(LoginRequest request) {
 
         LoginResponse response = new LoginResponse();
@@ -84,6 +86,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse register(RegisterRequest request) {
 
         RegisterResponse response = new RegisterResponse();

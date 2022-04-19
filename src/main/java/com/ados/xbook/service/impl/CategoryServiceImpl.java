@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,6 +152,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse create(CategoryRequest request) {
 
         CreateResponse<CategoryResponse> response = new CreateResponse<>();
@@ -186,6 +188,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse update(Long id, CategoryRequest request) {
 
         GetSingleResponse<CategoryResponse> response = new GetSingleResponse<>();
@@ -232,6 +235,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse deleteById(String username, Long id) {
 
         BaseResponse response = new BaseResponse();

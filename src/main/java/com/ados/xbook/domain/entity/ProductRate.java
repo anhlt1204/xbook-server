@@ -1,5 +1,6 @@
 package com.ados.xbook.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import org.hibernate.annotations.Nationalized;
 
