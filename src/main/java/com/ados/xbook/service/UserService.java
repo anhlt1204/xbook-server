@@ -5,7 +5,7 @@ import com.ados.xbook.domain.request.UserRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 
 public interface UserService {
-    BaseResponse findAll();
+    BaseResponse findAll(String key, String value, Integer page, Integer size);
 
     BaseResponse findById(Long id);
 

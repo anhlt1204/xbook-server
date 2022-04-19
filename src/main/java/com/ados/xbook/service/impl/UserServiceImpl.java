@@ -10,10 +10,16 @@ import com.ados.xbook.domain.response.base.CreateResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
 import com.ados.xbook.domain.response.base.GetSingleResponse;
 import com.ados.xbook.exception.InvalidException;
+import com.ados.xbook.helper.PagingInfo;
 import com.ados.xbook.repository.UserRepo;
 import com.ados.xbook.service.BaseService;
 import com.ados.xbook.service.UserService;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,18 +39,77 @@ public class UserServiceImpl extends BaseService implements UserService {
     private PasswordEncoder bcryptEncoder;
 
     @Override
-    public BaseResponse findAll() {
+    public BaseResponse findAll(String key, String value, Integer page, Integer size) {
 
         GetArrayResponse<UserResponse> response = new GetArrayResponse<>();
+        PagingInfo pagingInfo = PagingInfo.parse(page, size);
+        Long total = 0L;
+        Pageable paging;
+        Page<User> p;
+        List<User> users = new ArrayList<>();
 
-        List<User> users = userRepo.findAll();
+        if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value)) {
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+            p = userRepo.findAll(paging);
+            users = p.getContent();
+            total = p.getTotalElements();
+        }
+
+        if (!Strings.isNullOrEmpty(key)) {
+            switch (key.trim().toUpperCase()) {
+                case "USERNAME":
+                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                    p = userRepo.findAllByUsernameLike("%" + value + "%", paging);
+                    users = p.getContent();
+                    total = p.getTotalElements();
+                    break;
+                case "FILTER":
+                    switch (value.trim().toUpperCase()) {
+                        case "ZA":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("username").descending());
+                            p = userRepo.findAll(paging);
+                            users = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        case "AZ":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("username"));
+                            p = userRepo.findAll(paging);
+                            users = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        case "OLD":
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                            p = userRepo.findAll(paging);
+                            users = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        default:
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                            p = userRepo.findAll(paging);
+                            users = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                    }
+                    break;
+                default:
+                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                    p = userRepo.findAll(paging);
+                    users = p.getContent();
+                    total = p.getTotalElements();
+                    break;
+            }
+        }
+
         List<UserResponse> userResponses = new ArrayList<>();
 
         for (User u : users) {
             userResponses.add(new UserResponse(u));
         }
 
-        response.setTotalItem(users.size());
+        response.setTotalItem(total);
+        response.setCurrentPage(pagingInfo.getPage() + 1);
+        response.setTotalPage(total % pagingInfo.getSize() == 0 ?
+                total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
         response.setData(userResponses);
         response.setSuccess();
 

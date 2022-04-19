@@ -43,7 +43,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
         List<Category> categories = new ArrayList<>();
 
         if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value)) {
-            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize());
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
             p = categoryRepo.findAll(paging);
             categories = p.getContent();
             total = p.getTotalElements();
@@ -52,8 +52,6 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
         if (!Strings.isNullOrEmpty(key)) {
             switch (key.trim().toUpperCase()) {
                 case "NAME":
-//                    categories = categoryRepo.findAllByNameLike("%" + value + "%");
-//                    total = Long.valueOf(categories.size());
                     paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
                     p = categoryRepo.findAllByNameLike("%" + value + "%", paging);
                     categories = p.getContent();

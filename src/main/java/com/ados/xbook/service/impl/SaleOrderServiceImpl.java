@@ -11,10 +11,12 @@ import com.ados.xbook.helper.PagingInfo;
 import com.ados.xbook.repository.*;
 import com.ados.xbook.service.BaseService;
 import com.ados.xbook.service.SaleOrderService;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +65,113 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
 
         return response;
 
+    }
+
+    @Override
+    public BaseResponse findAllAdmin(SessionEntity info, Long userId, String key, String value, Integer page, Integer size) {
+
+        GetArrayResponse<SaleOrder> response = new GetArrayResponse<>();
+        PagingInfo pagingInfo = PagingInfo.parse(page, size);
+        Long total = 0L;
+        Pageable paging;
+        Page<SaleOrder> p;
+        List<SaleOrder> saleOrders = new ArrayList<>();
+
+        if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value) && (userId == null || userId <= 0)) {
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+            p = saleOrderRepo.findAll(paging);
+            saleOrders = p.getContent();
+            total = p.getTotalElements();
+        }
+
+        if (userId == null || userId <= 0) {
+            if (!Strings.isNullOrEmpty(key)) {
+                switch (key.trim().toUpperCase()) {
+                    case "STATUS":
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = saleOrderRepo.findAllByStatus(tryParse(value), paging);
+                        saleOrders = p.getContent();
+                        total = p.getTotalElements();
+                        break;
+                    case "FILTER":
+                        switch (value.trim().toUpperCase()) {
+                            case "OLD":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                p = saleOrderRepo.findAll(paging);
+                                saleOrders = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            default:
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                                p = saleOrderRepo.findAll(paging);
+                                saleOrders = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                        }
+                        break;
+                    default:
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = saleOrderRepo.findAll(paging);
+                        saleOrders = p.getContent();
+                        total = p.getTotalElements();
+                        break;
+                }
+            }
+        } else {
+            Optional<User> optional = userRepo.findById(userId);
+            if (!optional.isPresent()) {
+                throw new InvalidException("Cannot find user has id " + userId);
+            }
+
+            User user = optional.get();
+
+            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+            p = saleOrderRepo.findAllByUser(user, paging);
+            saleOrders = p.getContent();
+            total = p.getTotalElements();
+
+            if (!Strings.isNullOrEmpty(key)) {
+                switch (key.trim().toUpperCase()) {
+                    case "STATUS":
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = saleOrderRepo.findAllByUserAndStatus(user, tryParse(value), paging);
+                        saleOrders = p.getContent();
+                        total = p.getTotalElements();
+                        break;
+                    case "FILTER":
+                        switch (value.trim().toUpperCase()) {
+                            case "OLD":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                p = saleOrderRepo.findAllByUser(user, paging);
+                                saleOrders = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            default:
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                                p = saleOrderRepo.findAllByUser(user, paging);
+                                saleOrders = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                        }
+                        break;
+                    default:
+                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                        p = saleOrderRepo.findAllByUser(user, paging);
+                        saleOrders = p.getContent();
+                        total = p.getTotalElements();
+                        break;
+                }
+            }
+        }
+
+        response.setTotalItem(total);
+        response.setCurrentPage(pagingInfo.getPage() + 1);
+        response.setTotalPage(total % pagingInfo.getSize() == 0 ?
+                total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
+        response.setData(saleOrders);
+        response.setSuccess();
+
+        return response;
     }
 
     @Override
@@ -217,11 +326,46 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
         return response;
     }
 
+    @Override
+    public BaseResponse submitSaleOrder(SessionEntity info, Long saleOrderId) {
+        GetSingleResponse<SaleOrderResponse> response = new GetSingleResponse<>();
+
+        Optional<SaleOrder> optional = saleOrderRepo.findById(saleOrderId);
+
+        if (!optional.isPresent()) {
+            throw new InvalidException("Cannot find sale order has id " + saleOrderId);
+        } else {
+            SaleOrder saleOrder = optional.get();
+
+            if (saleOrder.getStatus() != 1) {
+                throw new InvalidException("Sale order is not wait submit");
+            }
+
+            saleOrder.setStatus(2);
+            saleOrder.setUpdateBy(info.getUsername());
+            saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.DANG_GIAO_HANG.toString()));
+
+            saleOrderRepo.save(saleOrder);
+            response.setItem(new SaleOrderResponse(saleOrder));
+            response.setSuccess();
+        }
+
+        return response;
+    }
+
     public Double total(List<OrderItem> items) {
         Double sum = 0D;
         for (OrderItem o : items) {
             sum += o.getQuantity() * o.getProduct().getPrice();
         }
         return sum;
+    }
+
+    public Integer tryParse(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

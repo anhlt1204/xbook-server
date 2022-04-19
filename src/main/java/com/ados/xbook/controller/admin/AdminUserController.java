@@ -24,17 +24,21 @@ public class AdminUserController extends BaseController {
     private SessionEntityRepo repo;
 
     @GetMapping
-    public BaseResponse findAll(@RequestHeader Map<String, String> headers) {
+    public BaseResponse findAll(@RequestHeader Map<String, String> headers,
+                                @RequestParam(value = "key", required = false) String key,
+                                @RequestParam(value = "value", required = false) String value,
+                                @RequestParam(value = "page", required = false) Integer page,
+                                @RequestParam(value = "size", required = false) Integer size) {
 
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
 
-        log.info("=>findAll info: {}", info);
+        log.info("=>findAll info: {}, key: {}, value: {}, page: {}, size: {}", info, key, value, page, size);
 
-        response = userService.findAll();
+        response = userService.findAll(key, value, page, size);
 
-        log.info("<=findAll info: {}, res: {}", info, response);
+        log.info("<=findAll info: {}, key: {}, value: {}, page: {}, size: {}, res: {}", info, key, value, page, size, response);
 
         return response;
 
