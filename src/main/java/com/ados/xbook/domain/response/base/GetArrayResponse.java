@@ -19,6 +19,8 @@ public class GetArrayResponse<T> extends BaseResponse {
     @JsonProperty("total_item")
     private long totalItem;
 
+    private String key;
+    private String value;
     private List<T> data;
 
     @Override

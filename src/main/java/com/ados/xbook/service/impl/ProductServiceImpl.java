@@ -46,6 +46,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     private ProductImageService productImageService;
 
     @Override
+    @Transactional
     public BaseResponse findAll(Long categoryId, String key, String value, Integer page, Integer size) {
         GetArrayResponse<ProductResponse> response = new GetArrayResponse<>();
         PagingInfo pagingInfo = PagingInfo.parse(page, size);
@@ -125,6 +126,9 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             }
 
             Category category = optional.get();
+
+            response.setKey("Category");
+            response.setValue(category.getName());
 
             paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
             p = productRepo.findAllByCategory(category, paging);

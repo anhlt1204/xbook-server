@@ -21,7 +21,7 @@ public class ProductResponse {
     private String title;
     private String shortDescription;
     private String longDescription;
-    private Long categoryId;
+    private String category;
     private Double price;
     private String author;
     private Integer currentNumber;
@@ -42,7 +42,7 @@ public class ProductResponse {
         this.shortDescription = product.getShortDescription();
         this.longDescription = product.getLongDescription();
         if (product.getCategory() != null) {
-            this.categoryId = product.getCategory().getId();
+            this.category = product.getCategory().getName();
         }
         this.price = product.getPrice();
         this.author = product.getAuthor();
