@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,12 +67,64 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             if (!Strings.isNullOrEmpty(key)) {
                 switch (key.trim().toUpperCase()) {
                     case "TITLE":
-                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                        p = productRepo.findAllByTitleLike("%" + value + "%", paging);
-                        products = p.getContent();
-                        total = p.getTotalElements();
+                        String va = null;
+                        String sort = null;
+
+                        String v = value.trim();
+                        if (v.contains("___")) {
+                            List<String> list = Arrays.asList(v.split("___"));
+                            if (list.size() >= 2) {
+                                va = list.get(0).trim();
+                                sort = list.get(1).trim();
+                            }
+                            switch (sort.toUpperCase()) {
+                                case "ZA":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("title").descending());
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "AZ":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("title"));
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "OLD":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "CHEAP":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price"));
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "EXPENSIVE":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                default:
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                            }
+                        } else {
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                            p = productRepo.findAllByTitleLike("%" + value + "%", paging);
+                            products = p.getContent();
+                            total = p.getTotalElements();
+                        }
                         break;
+
                     case "FILTER":
+
                         switch (value.trim().toUpperCase()) {
                             case "ZA":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("title").descending());
@@ -138,11 +191,62 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             if (!Strings.isNullOrEmpty(key)) {
                 switch (key.trim().toUpperCase()) {
                     case "TITLE":
-                        paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                        p = productRepo.findAllByCategoryAndTitleLike(category, "%" + value + "%", paging);
-                        products = p.getContent();
-                        total = p.getTotalElements();
-                        break;
+                        String va = null;
+                        String sort = null;
+
+                        String v = value.trim();
+                        if (v.contains("___")) {
+                            List<String> list = Arrays.asList(v.split("___"));
+                            if (list.size() >= 2) {
+                                va = list.get(0).trim();
+                                sort = list.get(1).trim();
+                            }
+                            switch (sort.toUpperCase()) {
+                                case "ZA":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("title").descending());
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "AZ":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("title"));
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "OLD":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "CHEAP":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price"));
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                case "EXPENSIVE":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                                default:
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
+                            }
+                        } else {
+                            paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
+                            p = productRepo.findAllByCategoryAndTitleLike(category, "%" + value + "%", paging);
+                            products = p.getContent();
+                            total = p.getTotalElements();
+                            break;
+                        }
+
                     case "FILTER":
                         switch (value.trim().toUpperCase()) {
                             case "ZA":
