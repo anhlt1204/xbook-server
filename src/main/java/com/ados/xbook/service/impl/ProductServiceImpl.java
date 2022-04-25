@@ -2,6 +2,9 @@ package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.Category;
 import com.ados.xbook.domain.entity.Product;
+import com.ados.xbook.domain.entity.ProductImage;
+import com.ados.xbook.domain.entity.SessionEntity;
+import com.ados.xbook.domain.request.ProductImageRequest;
 import com.ados.xbook.domain.request.ProductRequest;
 import com.ados.xbook.domain.response.ProductResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
@@ -14,6 +17,7 @@ import com.ados.xbook.helper.StringHelper;
 import com.ados.xbook.repository.CategoryRepo;
 import com.ados.xbook.repository.ProductRepo;
 import com.ados.xbook.service.BaseService;
+import com.ados.xbook.service.ProductImageService;
 import com.ados.xbook.service.ProductService;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,9 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Autowired
     private CategoryRepo categoryRepo;
+
+    @Autowired
+    private ProductImageService productImageService;
 
     @Override
     public BaseResponse findAll(Long categoryId, String key, String value, Integer page, Integer size) {
@@ -79,6 +86,18 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                 break;
                             case "OLD":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                p = productRepo.findAll(paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "CHEAP":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price"));
+                                p = productRepo.findAll(paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "EXPENSIVE":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
                                 p = productRepo.findAll(paging);
                                 products = p.getContent();
                                 total = p.getTotalElements();
@@ -136,6 +155,18 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                 break;
                             case "OLD":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
+                                p = productRepo.findAllByCategory(category, paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "CHEAP":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price"));
+                                p = productRepo.findAllByCategory(category, paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "EXPENSIVE":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
                                 p = productRepo.findAllByCategory(category, paging);
                                 products = p.getContent();
                                 total = p.getTotalElements();
@@ -214,7 +245,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse create(ProductRequest request) {
+    public BaseResponse create(ProductRequest request, SessionEntity info) {
 
         CreateResponse<ProductResponse> response = new CreateResponse<>();
 
@@ -227,7 +258,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
         Product product = request.create();
         product.setSlug(StringHelper.toSlug(request.getTitle()));
-        product.setCreateBy(request.getUsername());
+        product.setCreateBy(info.getUsername());
 
         Optional<Category> optional = categoryRepo.findById(request.getCategoryId());
         Category category;
@@ -238,6 +269,16 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         }
 
         productRepo.save(product);
+
+        // Save images
+        ProductImageRequest r = new ProductImageRequest();
+        r.setProductId(product.getId());
+        r.setImages(request.getImages());
+        GetArrayResponse<ProductImage> res = productImageService.create(r, info);
+
+        product.setProductImages(res.getData());
+        productRepo.save(product);
+
         response.setItem(new ProductResponse(product));
         response.setSuccess();
 
@@ -247,7 +288,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse update(Long id, ProductRequest request) {
+    public BaseResponse update(Long id, ProductRequest request, SessionEntity info) {
 
         GetSingleResponse<ProductResponse> response = new GetSingleResponse<>();
 
@@ -268,7 +309,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             }
 
             product = request.update(product);
-            product.setUpdateBy(request.getUsername());
+            product.setUpdateBy(info.getUsername());
 
             Optional<Category> categoryOptional = categoryRepo.findById(request.getCategoryId());
             Category category;

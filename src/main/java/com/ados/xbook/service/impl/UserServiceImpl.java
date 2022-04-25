@@ -162,7 +162,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse create(UserRequest request) {
+    public BaseResponse create(UserRequest request, SessionEntity info) {
 
         CreateResponse<UserResponse> response = new CreateResponse<>();
 
@@ -193,7 +193,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         User user = request.create();
         user.setPassword(bcryptEncoder.encode(request.getPassword()));
-        user.setCreateBy(request.getCreateBy());
+        user.setCreateBy(info.getUsername());
 
         userRepo.save(user);
         response.setItem(new UserResponse(user));
@@ -204,7 +204,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse update(Long id, UserRequest request) {
+    public BaseResponse update(Long id, UserRequest request, SessionEntity info) {
 
         GetSingleResponse<UserResponse> response = new GetSingleResponse<>();
 
@@ -215,7 +215,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         } else {
             User user = optional.get();
 
-            if (!(user.getUsername().equals(request.getCreateBy()) || request.getCallerRole().equals(ERole.ADMIN.toString()))) {
+            if (!(user.getUsername().equals(info.getUsername()) || info.getRole().equals(ERole.ADMIN.toString()))) {
                 throw new InvalidException("You don't have permission to update this user");
             }
 
@@ -248,7 +248,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             }
 
             user = request.update(user);
-            user.setUpdateBy(request.getCreateBy());
+            user.setUpdateBy(info.getUsername());
 
             userRepo.save(user);
             response.setItem(new UserResponse(user));

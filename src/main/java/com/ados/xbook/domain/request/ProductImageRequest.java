@@ -6,15 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ProductImageRequest {
-    private MultipartFile image;
-    private String description;
+    private MultipartFile[] images;
     private Long productId;
 
-    private String username;
-
     public void validate() {
-        if (image.isEmpty()) {
-            throw new InvalidException("Image is empty");
+        if (images.length <= 0) {
+            throw new InvalidException("Images is empty");
         }
 
         if (productId == null || productId <= 0) {

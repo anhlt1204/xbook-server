@@ -19,9 +19,6 @@ public class UserRequest {
     private String phone;
     private String role;
 
-    private String createBy;
-    private String callerRole;
-
     public void validate(Boolean isUpdate) {
 
         if (Strings.isNullOrEmpty(firstName) || !validateFullName(firstName)) {
@@ -40,7 +37,7 @@ public class UserRequest {
             throw new InvalidException("Address is invalid");
         }
 
-        if (isUpdate) {
+        if (!isUpdate) {
             if (Strings.isNullOrEmpty(password) || !validatePassword(password)) {
                 throw new InvalidException("Password is invalid");
             }

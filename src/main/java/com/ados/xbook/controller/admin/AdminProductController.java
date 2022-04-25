@@ -25,7 +25,7 @@ public class AdminProductController extends BaseController {
 
     @PostMapping
     public BaseResponse create(@RequestHeader Map<String, String> headers,
-                               @RequestBody ProductRequest request) {
+                               @ModelAttribute ProductRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
@@ -36,8 +36,7 @@ public class AdminProductController extends BaseController {
             throw new InvalidException("Params invalid");
         } else {
             request.validate();
-            request.setUsername(info.getUsername());
-            response = productService.create(request);
+            response = productService.create(request, info);
         }
 
         log.info("<=create info: {}, req: {}, res: {}", info, request, response);
@@ -48,7 +47,7 @@ public class AdminProductController extends BaseController {
     @PutMapping("/{id}")
     public BaseResponse update(@RequestHeader Map<String, String> headers,
                                @PathVariable(name = "id") Long id,
-                               @RequestBody ProductRequest request) {
+                               @ModelAttribute ProductRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
@@ -59,8 +58,7 @@ public class AdminProductController extends BaseController {
             throw new InvalidException("Params invalid");
         } else {
             request.validate();
-            request.setUsername(info.getUsername());
-            response = productService.update(id, request);
+            response = productService.update(id, request, info);
         }
 
         log.info("<=update info: {}, id:{}, req: {}, res: {}", info, id, request, response);

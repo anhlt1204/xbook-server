@@ -36,8 +36,7 @@ public class AdminCategoryController extends BaseController {
             throw new InvalidException("Params invalid");
         } else {
             request.validate();
-            request.setUsername(info.getUsername());
-            response = categoryService.create(request);
+            response = categoryService.create(request, info);
         }
 
         log.info("<=create info: {}, req: {}, res: {}", info, request, response);
@@ -59,8 +58,7 @@ public class AdminCategoryController extends BaseController {
             throw new InvalidException("Params invalid");
         } else {
             request.validate();
-            request.setUsername(info.getUsername());
-            response = categoryService.update(id, request);
+            response = categoryService.update(id, request, info);
         }
 
         log.info("<=update info: {}, id:{}, req: {}, res: {}", info, id, request, response);

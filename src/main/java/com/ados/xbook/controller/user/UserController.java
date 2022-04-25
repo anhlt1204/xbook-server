@@ -52,9 +52,7 @@ public class UserController extends BaseController {
             throw new InvalidException("Params invalid");
         } else {
             request.validate(true);
-            request.setCreateBy(info.getUsername());
-            request.setCallerRole(info.getRole());
-            response = userService.update(id, request);
+            response = userService.update(id, request, info);
         }
 
         log.info("<=update info: {}, id:{}, req: {}, res: {}", info, id, request, response);

@@ -2,6 +2,8 @@ package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.Product;
 import com.ados.xbook.domain.entity.ProductImage;
+import com.ados.xbook.domain.entity.SessionEntity;
+import com.ados.xbook.domain.request.ProductImageRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
 import com.ados.xbook.domain.response.base.GetSingleResponse;
@@ -70,22 +72,22 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse create(Long productId, MultipartFile[] images, String username) {
+    public GetArrayResponse<ProductImage> create(ProductImageRequest request, SessionEntity info) {
         GetArrayResponse<ProductImage> response = new GetArrayResponse<>();
 
         try {
 
             List<ProductImage> list = new ArrayList<>();
 
-            Product product = productRepo.findById(productId).orElse(null);
+            Product product = productRepo.findById(request.getProductId()).orElse(null);
 
-            for (MultipartFile image : images) {
+            for (MultipartFile image : request.getImages()) {
                 ProductImage productImage = new ProductImage();
                 String link = "";
                 Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
                 link = cloudinaryMap.get("secure_url").toString();
                 productImage.setImageUrl(link);
-                productImage.setCreateBy(username);
+                productImage.setCreateBy(info.getUsername());
                 productImage.setProduct(product);
                 list.add(productImage);
             }

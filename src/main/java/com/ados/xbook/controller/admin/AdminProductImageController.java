@@ -2,6 +2,7 @@ package com.ados.xbook.controller.admin;
 
 import com.ados.xbook.controller.BaseController;
 import com.ados.xbook.domain.entity.SessionEntity;
+import com.ados.xbook.domain.request.ProductImageRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.exception.InvalidException;
 import com.ados.xbook.helper.StringHelper;
@@ -25,21 +26,20 @@ public class AdminProductImageController extends BaseController {
 
     @PostMapping
     public BaseResponse create(@RequestHeader Map<String, String> headers,
-                               @RequestParam("productId") Long productId,
-                               @RequestParam("images") MultipartFile[] images) {
+                               @ModelAttribute ProductImageRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
 
-        log.info("=>create info: {}, productId: {}, images: {}", info, productId, images);
+        log.info("=>create info: {}, req: {}", info, request);
 
-        if (productId == null || productId <= 0 || images.length == 0) {
+        if (request == null) {
             throw new InvalidException("Params invalid");
         } else {
-            response = productImageService.create(productId, images, info.getUsername());
+            response = productImageService.create(request, info);
         }
 
-        log.info("<=create info: {}, productId: {}, images: {}, res: {}", info, productId, images, response);
+        log.info("<=create info: {}, req: {}, res: {}", info, request, response);
 
         return response;
     }

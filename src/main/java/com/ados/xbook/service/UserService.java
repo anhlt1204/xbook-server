@@ -13,9 +13,9 @@ public interface UserService {
 
     BaseResponse getCurrentUser(SessionEntity info);
 
-    BaseResponse create(UserRequest request);
+    BaseResponse create(UserRequest request, SessionEntity info);
 
-    BaseResponse update(Long id, UserRequest request);
+    BaseResponse update(Long id, UserRequest request, SessionEntity info);
 
     BaseResponse deleteById(String username, String role, Long id);
 }

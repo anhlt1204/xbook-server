@@ -1,10 +1,13 @@
 package com.ados.xbook.domain.response;
 
 import com.ados.xbook.domain.entity.Product;
+import com.ados.xbook.domain.entity.ProductImage;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,8 +28,10 @@ public class ProductResponse {
     private Integer numberOfPage;
     private String slug;
     private Integer quantitySelled;
+    private List<ProductImageResponse> images = new ArrayList<>();
 
     public ProductResponse(Product product) {
+        List<ProductImageResponse> images = new ArrayList<>();
         this.id = product.getId();
         this.status = product.getStatus();
         this.createAt = product.getCreateAt();
@@ -45,5 +50,11 @@ public class ProductResponse {
         this.numberOfPage = product.getNumberOfPage();
         this.slug = product.getSlug();
         this.quantitySelled = product.getQuantitySelled();
+        if (product.getProductImages() != null && product.getProductImages().size() > 0) {
+            for (ProductImage image : product.getProductImages()) {
+                images.add(new ProductImageResponse(image));
+            }
+            this.images = images;
+        }
     }
 }

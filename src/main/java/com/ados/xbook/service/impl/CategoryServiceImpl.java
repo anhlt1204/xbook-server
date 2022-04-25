@@ -1,6 +1,7 @@
 package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.Category;
+import com.ados.xbook.domain.entity.SessionEntity;
 import com.ados.xbook.domain.request.CategoryRequest;
 import com.ados.xbook.domain.response.CategoryResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
@@ -151,7 +152,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse create(CategoryRequest request) {
+    public BaseResponse create(CategoryRequest request, SessionEntity info) {
 
         CreateResponse<CategoryResponse> response = new CreateResponse<>();
 
@@ -165,7 +166,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
         }
 
         Category category = request.create();
-        category.setCreateBy(request.getUsername());
+        category.setCreateBy(info.getUsername());
         Optional<Category> parents = categoryRepo.findById(request.getParentsId());
 
         if (parents.isPresent()) {
@@ -187,7 +188,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse update(Long id, CategoryRequest request) {
+    public BaseResponse update(Long id, CategoryRequest request, SessionEntity info) {
 
         GetSingleResponse<CategoryResponse> response = new GetSingleResponse<>();
 
@@ -210,7 +211,7 @@ public class CategoryServiceImpl extends BaseService implements CategoryService 
             }
 
             category = request.update(category);
-            category.setUpdateBy(request.getUsername());
+            category.setUpdateBy(info.getUsername());
             Optional<Category> parents = categoryRepo.findById(request.getParentsId());
 
             if (parents.isPresent()) {
