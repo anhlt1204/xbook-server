@@ -4,7 +4,6 @@ import com.ados.xbook.domain.entity.Category;
 import com.ados.xbook.domain.entity.Product;
 import com.ados.xbook.domain.entity.ProductImage;
 import com.ados.xbook.domain.entity.SessionEntity;
-import com.ados.xbook.domain.request.ProductImageRequest;
 import com.ados.xbook.domain.request.ProductRequest;
 import com.ados.xbook.domain.response.ProductResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
@@ -15,9 +14,9 @@ import com.ados.xbook.exception.InvalidException;
 import com.ados.xbook.helper.PagingInfo;
 import com.ados.xbook.helper.StringHelper;
 import com.ados.xbook.repository.CategoryRepo;
+import com.ados.xbook.repository.ProductImageRepo;
 import com.ados.xbook.repository.ProductRepo;
 import com.ados.xbook.service.BaseService;
-import com.ados.xbook.service.ProductImageService;
 import com.ados.xbook.service.ProductService;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     private CategoryRepo categoryRepo;
 
     @Autowired
-    private ProductImageService productImageService;
+    private ProductImageRepo productImageRepo;
 
     @Override
     @Transactional
@@ -379,12 +378,14 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         productRepo.save(product);
 
         // Save images
-        ProductImageRequest r = new ProductImageRequest();
-        r.setProductId(product.getId());
-        r.setImages(request.getImages());
-        GetArrayResponse<ProductImage> res = productImageService.create(r, info);
+        ProductImage productImage = new ProductImage();
+        productImage.setProduct(product);
+        productImage.setImageUrl(request.getImage());
 
-        product.setProductImages(res.getData());
+        productImageRepo.save(productImage);
+
+        product.getProductImages().add(productImage);
+
         productRepo.save(product);
 
         response.setItem(new ProductResponse(product));
@@ -428,6 +429,17 @@ public class ProductServiceImpl extends BaseService implements ProductService {
             }
 
             productRepo.save(product);
+
+            // Save images
+            ProductImage productImage = new ProductImage();
+            productImage.setProduct(product);
+            productImage.setImageUrl(request.getImage());
+
+            productImageRepo.save(productImage);
+
+            product.setProductImages(Arrays.asList(productImage));
+            productRepo.save(product);
+
             response.setItem(new ProductResponse(product));
             response.setSuccess();
         }

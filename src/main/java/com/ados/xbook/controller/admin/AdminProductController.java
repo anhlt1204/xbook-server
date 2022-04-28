@@ -25,7 +25,7 @@ public class AdminProductController extends BaseController {
 
     @PostMapping
     public BaseResponse create(@RequestHeader Map<String, String> headers,
-                               @ModelAttribute ProductRequest request) {
+                               @RequestBody ProductRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
@@ -47,7 +47,7 @@ public class AdminProductController extends BaseController {
     @PutMapping("/{id}")
     public BaseResponse update(@RequestHeader Map<String, String> headers,
                                @PathVariable(name = "id") Long id,
-                               @ModelAttribute ProductRequest request) {
+                               @RequestBody ProductRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);

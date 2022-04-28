@@ -25,10 +25,6 @@ public class UserRequest {
             throw new InvalidException("First name is invalid");
         }
 
-        if (Strings.isNullOrEmpty(lastName) || !validateFullName(lastName)) {
-            throw new InvalidException("Last name is invalid");
-        }
-
         if (Strings.isNullOrEmpty(username) || !validateUsername(username)) {
             throw new InvalidException("Username is invalid");
         }
@@ -38,6 +34,10 @@ public class UserRequest {
         }
 
         if (!isUpdate) {
+            if (Strings.isNullOrEmpty(lastName) || !validateFullName(lastName)) {
+                throw new InvalidException("Last name is invalid");
+            }
+
             if (Strings.isNullOrEmpty(password) || !validatePassword(password)) {
                 throw new InvalidException("Password is invalid");
             }
@@ -80,7 +80,6 @@ public class UserRequest {
 
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setUsername(username);
         user.setAddress(address);
         user.setAmount(amount);
         user.setEmail(email);
@@ -89,4 +88,5 @@ public class UserRequest {
 
         return user;
     }
+
 }

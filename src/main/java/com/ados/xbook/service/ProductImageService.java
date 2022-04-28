@@ -12,6 +12,8 @@ public interface ProductImageService {
 
     BaseResponse findById(Long id);
 
+    BaseResponse upload(MultipartFile file);
+
     GetArrayResponse<ProductImage> create(ProductImageRequest request, SessionEntity info);
 
     BaseResponse update(Long id, Long productId, MultipartFile image, String username);

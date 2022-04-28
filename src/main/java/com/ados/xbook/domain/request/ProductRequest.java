@@ -4,7 +4,6 @@ import com.ados.xbook.domain.entity.Product;
 import com.ados.xbook.exception.InvalidException;
 import com.google.common.base.Strings;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ProductRequest {
@@ -17,7 +16,7 @@ public class ProductRequest {
     private Integer currentNumber;
     private Integer numberOfPage;
     private Integer quantitySelled;
-    private MultipartFile[] images;
+    private String image;
 
     public void validate() {
         if (Strings.isNullOrEmpty(title)) {
@@ -56,8 +55,8 @@ public class ProductRequest {
             throw new InvalidException("Quantity selled is invalid");
         }
 
-        if (images.length <= 0) {
-            throw new InvalidException("Images is empty");
+        if (Strings.isNullOrEmpty(image)) {
+            throw new InvalidException("Image is invalid");
         }
     }
 

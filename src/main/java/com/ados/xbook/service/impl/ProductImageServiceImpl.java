@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,24 @@ public class ProductImageServiceImpl extends BaseService implements ProductImage
         ProductImage productImage = optional.get();
 
         response.setItem(productImage);
+        response.setSuccess();
+
+        return response;
+    }
+
+    @Override
+    public BaseResponse upload(MultipartFile file) {
+        GetSingleResponse<String> response = new GetSingleResponse<>();
+        String link = null;
+        Map<?, ?> cloudinaryMap = null;
+        try {
+            cloudinaryMap = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            link = cloudinaryMap.get("secure_url").toString();
+        } catch (IOException e) {
+            log.error("Ex: {}", e);
+        }
+
+        response.setItem(link);
         response.setSuccess();
 
         return response;

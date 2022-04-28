@@ -220,10 +220,6 @@ public class UserServiceImpl extends BaseService implements UserService {
             }
 
             List<User> users = userRepo.findAll();
-            List<String> usernames = users.stream()
-                    .map(User::getUsername)
-                    .collect(Collectors.toList());
-            usernames.remove(user.getUsername());
 
             List<String> emails = users.stream()
                     .map(User::getEmail)
@@ -234,10 +230,6 @@ public class UserServiceImpl extends BaseService implements UserService {
                     .map(User::getPhone)
                     .collect(Collectors.toList());
             phones.remove(user.getPhone());
-
-            if (usernames.contains(request.getUsername())) {
-                throw new InvalidException("Username is already exist");
-            }
 
             if (emails.contains(request.getEmail())) {
                 throw new InvalidException("Email is already exist");

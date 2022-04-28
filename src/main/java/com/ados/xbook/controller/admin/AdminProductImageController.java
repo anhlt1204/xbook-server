@@ -24,6 +24,26 @@ public class AdminProductImageController extends BaseController {
     @Autowired
     private SessionEntityRepo repo;
 
+    @PostMapping("/upload")
+    public BaseResponse upload(@RequestHeader Map<String, String> headers,
+                               @RequestParam MultipartFile file) {
+        BaseResponse response;
+        String token = headers.get("authorization");
+        SessionEntity info = StringHelper.info(token, repo);
+
+        log.info("=>upload info: {}, file: {}", info, file);
+
+        if (file == null || file.isEmpty()) {
+            throw new InvalidException("Params invalid");
+        } else {
+            response = productImageService.upload(file);
+        }
+
+        log.info("<=upload info: {}, file: {}, res: {}", info, file, response);
+
+        return response;
+    }
+
     @PostMapping
     public BaseResponse create(@RequestHeader Map<String, String> headers,
                                @ModelAttribute ProductImageRequest request) {
