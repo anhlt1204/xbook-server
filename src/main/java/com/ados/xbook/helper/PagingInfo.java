@@ -28,7 +28,7 @@ public class PagingInfo {
             size = SIZE_PAGE;
         }
         return PagingInfo.builder()
-                .page(page * size)
+                .page(page)
                 .size(size)
                 .build();
     }
