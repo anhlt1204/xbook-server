@@ -245,7 +245,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                             total = p.getTotalElements();
                             break;
                         }
-
+                        break;
                     case "FILTER":
                         switch (value.trim().toUpperCase()) {
                             case "ZA":

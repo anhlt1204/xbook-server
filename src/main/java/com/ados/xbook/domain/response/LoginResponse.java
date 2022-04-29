@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 public class LoginResponse extends BaseResponse {
     private String username;
+    private String role;
     private String token;
 }

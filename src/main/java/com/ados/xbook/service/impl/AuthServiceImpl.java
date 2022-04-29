@@ -68,6 +68,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
             String username = user.getUsername();
 
             response.setUsername(username);
+            response.setRole(user.getRole());
             response.setToken(token);
             response.setSuccess();
 
