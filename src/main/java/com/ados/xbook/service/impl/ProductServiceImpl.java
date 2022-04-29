@@ -437,7 +437,10 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
             productImageRepo.save(productImage);
 
-            product.setProductImages(Arrays.asList(productImage));
+            List<ProductImage> list = product.getProductImages();
+            list.add(productImage);
+
+            product.setProductImages(list);
             productRepo.save(product);
 
             response.setItem(new ProductResponse(product));
