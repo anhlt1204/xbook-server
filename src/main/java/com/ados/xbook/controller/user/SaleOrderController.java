@@ -3,6 +3,7 @@ package com.ados.xbook.controller.user;
 import com.ados.xbook.controller.BaseController;
 import com.ados.xbook.domain.entity.SessionEntity;
 import com.ados.xbook.domain.request.AddToCardRequest;
+import com.ados.xbook.domain.request.PaymentRequest;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.exception.InvalidException;
 import com.ados.xbook.helper.StringHelper;
@@ -97,17 +98,19 @@ public class SaleOrderController extends BaseController {
         return response;
     }
 
-    @GetMapping("/payment")
-    public BaseResponse payment(@RequestHeader Map<String, String> headers) {
+    @PostMapping("/payment")
+    public BaseResponse payment(@RequestHeader Map<String, String> headers,
+                                @RequestBody PaymentRequest request) {
         BaseResponse response;
         String token = headers.get("authorization");
         SessionEntity info = StringHelper.info(token, repo);
 
-        log.info("=>payment info: {}", info);
+        log.info("=>payment info: {}, req: {}", info, request);
 
-        response = saleOrderService.payment(info);
+//        request.validate();
+        response = saleOrderService.payment(info, request);
 
-        log.info("<=payment info: {}, res: {}", info, response);
+        log.info("<=payment info: {}, req :{}, res: {}", info, request, response);
 
         return response;
     }

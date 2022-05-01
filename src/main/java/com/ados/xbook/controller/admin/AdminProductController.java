@@ -35,7 +35,7 @@ public class AdminProductController extends BaseController {
         if (request == null) {
             throw new InvalidException("Params invalid");
         } else {
-            request.validate();
+//            request.validate();
             response = productService.create(request, info);
         }
 
@@ -57,7 +57,7 @@ public class AdminProductController extends BaseController {
         if (id == null || id <= 0 || request == null) {
             throw new InvalidException("Params invalid");
         } else {
-            request.validate();
+//            request.validate();
             response = productService.update(id, request, info);
         }
 

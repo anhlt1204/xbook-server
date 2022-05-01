@@ -22,13 +22,13 @@ public class AuthController extends BaseController {
     @PostMapping(value = "/login")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        request.validate();
+//        request.validate();
         return ResponseEntity.ok(authService.login(request));
     }
 
     @PostMapping(value = "/register")
     public ResponseEntity<BaseResponse> register(@RequestBody RegisterRequest request) {
-        request.validate();
+//        request.validate();
         return ResponseEntity.ok(authService.register(request));
     }
 

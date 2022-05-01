@@ -22,7 +22,7 @@ public class PagingInfo {
             page = START_PAGE;
         }
         if (page > 0) {
-            page--;
+            --page;
         }
         if (size == null || size < 0) {
             size = SIZE_PAGE;

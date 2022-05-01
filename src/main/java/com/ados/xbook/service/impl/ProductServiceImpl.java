@@ -107,6 +107,12 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                     products = p.getContent();
                                     total = p.getTotalElements();
                                     break;
+                                case "HOT":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("quantitySelled").descending());
+                                    p = productRepo.findAllByTitleLike("%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
                                 default:
                                     paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
                                     p = productRepo.findAllByTitleLike("%" + va + "%", paging);
@@ -151,6 +157,12 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                 break;
                             case "EXPENSIVE":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
+                                p = productRepo.findAll(paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "HOT":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("quantitySelled").descending());
                                 p = productRepo.findAll(paging);
                                 products = p.getContent();
                                 total = p.getTotalElements();
@@ -231,6 +243,12 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                     products = p.getContent();
                                     total = p.getTotalElements();
                                     break;
+                                case "HOT":
+                                    paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("quantitySelled").descending());
+                                    p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
+                                    products = p.getContent();
+                                    total = p.getTotalElements();
+                                    break;
                                 default:
                                     paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
                                     p = productRepo.findAllByCategoryAndTitleLike(category, "%" + va + "%", paging);
@@ -274,6 +292,12 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                                 break;
                             case "EXPENSIVE":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("price").descending());
+                                p = productRepo.findAllByCategory(category, paging);
+                                products = p.getContent();
+                                total = p.getTotalElements();
+                                break;
+                            case "HOT":
+                                paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("quantitySelled").descending());
                                 p = productRepo.findAllByCategory(category, paging);
                                 products = p.getContent();
                                 total = p.getTotalElements();

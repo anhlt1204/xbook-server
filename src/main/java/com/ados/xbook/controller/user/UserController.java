@@ -51,7 +51,7 @@ public class UserController extends BaseController {
         if (id == null || id <= 0 || request == null) {
             throw new InvalidException("Params invalid");
         } else {
-            request.validate(true);
+//            request.validate(true);
             response = userService.update(id, request, info);
         }
 

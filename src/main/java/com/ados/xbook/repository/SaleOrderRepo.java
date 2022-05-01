@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 public interface SaleOrderRepo extends JpaRepository<SaleOrder, Long> {
     SaleOrder findFirstByStatusAndCreateBy(Integer status, String username);
 
-    Page<SaleOrder> findAllByCreateByOrderByCreateAtDesc(String username, Pageable pageable);
+    Page<SaleOrder> findAllByStatusNot(Integer status, Pageable pageable);
+
+    Page<SaleOrder> findAllByCreateByAndStatusNotOrderByCreateAtDesc(String username, Integer status, Pageable pageable);
 
     Page<SaleOrder> findAllByStatus(Integer status, Pageable pageable);
 
-    Page<SaleOrder> findAllByUser(User user, Pageable pageable);
+    Page<SaleOrder> findAllByUserAndStatusNot(User user, Integer status, Pageable pageable);
 
     Page<SaleOrder> findAllByUserAndStatus(User user, Integer status, Pageable pageable);
 }

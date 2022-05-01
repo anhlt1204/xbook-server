@@ -2,6 +2,7 @@ package com.ados.xbook.service.impl;
 
 import com.ados.xbook.domain.entity.*;
 import com.ados.xbook.domain.request.AddToCardRequest;
+import com.ados.xbook.domain.request.PaymentRequest;
 import com.ados.xbook.domain.response.SaleOrderResponse;
 import com.ados.xbook.domain.response.base.BaseResponse;
 import com.ados.xbook.domain.response.base.GetArrayResponse;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class SaleOrderServiceImpl extends BaseService implements SaleOrderService {
 
     @Autowired
@@ -43,12 +45,14 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
     private ProductRepo productRepo;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse findAll(SessionEntity info, Integer page, Integer size) {
 
         GetArrayResponse<SaleOrder> response = new GetArrayResponse<>();
+        updateStatusSaleOrder();
         PagingInfo pagingInfo = PagingInfo.parse(page, size);
         Pageable paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize());
-        Page<SaleOrder> p = saleOrderRepo.findAllByCreateByOrderByCreateAtDesc(info.getUsername(), paging);
+        Page<SaleOrder> p = saleOrderRepo.findAllByCreateByAndStatusNotOrderByCreateAtDesc(info.getUsername(), -1, paging);
         List<SaleOrder> saleOrders = p.getContent();
 
         List<SaleOrderResponse> saleOrderResponses = new ArrayList<>();
@@ -68,9 +72,11 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse findAllAdmin(SessionEntity info, Long userId, String key, String value, Integer page, Integer size) {
 
         GetArrayResponse<SaleOrder> response = new GetArrayResponse<>();
+        updateStatusSaleOrder();
         PagingInfo pagingInfo = PagingInfo.parse(page, size);
         Long total = 0L;
         Pageable paging;
@@ -79,7 +85,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
 
         if (Strings.isNullOrEmpty(key) && Strings.isNullOrEmpty(value) && (userId == null || userId <= 0)) {
             paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-            p = saleOrderRepo.findAll(paging);
+            p = saleOrderRepo.findAllByStatusNot(-1, paging);
             saleOrders = p.getContent();
             total = p.getTotalElements();
         }
@@ -97,13 +103,13 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
                         switch (value.trim().toUpperCase()) {
                             case "OLD":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
-                                p = saleOrderRepo.findAll(paging);
+                                p = saleOrderRepo.findAllByStatusNot(-1, paging);
                                 saleOrders = p.getContent();
                                 total = p.getTotalElements();
                                 break;
                             default:
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                                p = saleOrderRepo.findAll(paging);
+                                p = saleOrderRepo.findAllByStatusNot(-1, paging);
                                 saleOrders = p.getContent();
                                 total = p.getTotalElements();
                                 break;
@@ -111,7 +117,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
                         break;
                     default:
                         paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                        p = saleOrderRepo.findAll(paging);
+                        p = saleOrderRepo.findAllByStatusNot(-1, paging);
                         saleOrders = p.getContent();
                         total = p.getTotalElements();
                         break;
@@ -126,7 +132,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
             User user = optional.get();
 
             paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-            p = saleOrderRepo.findAllByUser(user, paging);
+            p = saleOrderRepo.findAllByUserAndStatusNot(user, -1, paging);
             saleOrders = p.getContent();
             total = p.getTotalElements();
 
@@ -142,13 +148,13 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
                         switch (value.trim().toUpperCase()) {
                             case "OLD":
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt"));
-                                p = saleOrderRepo.findAllByUser(user, paging);
+                                p = saleOrderRepo.findAllByUserAndStatusNot(user, -1, paging);
                                 saleOrders = p.getContent();
                                 total = p.getTotalElements();
                                 break;
                             default:
                                 paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                                p = saleOrderRepo.findAllByUser(user, paging);
+                                p = saleOrderRepo.findAllByUserAndStatusNot(user, -1, paging);
                                 saleOrders = p.getContent();
                                 total = p.getTotalElements();
                                 break;
@@ -156,7 +162,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
                         break;
                     default:
                         paging = PageRequest.of(pagingInfo.getPage(), pagingInfo.getSize(), Sort.by("createAt").descending());
-                        p = saleOrderRepo.findAllByUser(user, paging);
+                        p = saleOrderRepo.findAllByUserAndStatusNot(user, -1, paging);
                         saleOrders = p.getContent();
                         total = p.getTotalElements();
                         break;
@@ -166,10 +172,27 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
 
         response.setTotalItem(total);
         response.setCurrentPage(pagingInfo.getPage() + 1);
-        response.setTotalPage(total % pagingInfo.getSize() == 0 ?
-                total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
+        response.setTotalPage(total % pagingInfo.getSize() == 0 ? total / pagingInfo.getSize() : total / pagingInfo.getSize() + 1);
         response.setData(saleOrders);
         response.setSuccess();
+
+        return response;
+    }
+
+    @Override
+    public BaseResponse findById(SessionEntity info, Long saleOrderId) {
+        GetSingleResponse<SaleOrder> response = new GetSingleResponse<>();
+
+        Optional<SaleOrder> optional = saleOrderRepo.findById(saleOrderId);
+
+        if (!optional.isPresent()) {
+            throw new InvalidException("Cannot find sale order has id " + saleOrderId);
+        }
+
+        SaleOrder saleOrder = optional.get();
+
+        response.setSuccess();
+        response.setItem(saleOrder);
 
         return response;
     }
@@ -186,6 +209,8 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
             saleOrder.setPhone(info.getPhone());
             saleOrder.setCreateBy(info.getUsername());
             saleOrder.setCustomerAddress(info.getAddress());
+            saleOrder.setTotal(0D);
+            saleOrder.setTotalPrice(0D);
             saleOrder.setUser(userRepo.findFirstByUsername(info.getUsername()));
             saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.MUA_HANG.toString()));
 
@@ -213,6 +238,9 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
             if (o.getProduct() == product) {
                 Integer quantity = o.getQuantity() + request.getQuantity();
                 if (quantity < 0) {
+                    throw new InvalidException("Invalid quantity");
+                }
+                if (quantity > product.getCurrentNumber()) {
                     throw new InvalidException("Invalid quantity");
                 }
                 if (quantity == 0) {
@@ -244,6 +272,14 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
             saleOrder.getOrderItems().add(item);
         }
 
+        Double total = total(saleOrder.getOrderItems());
+        Double totalItem = totalItem(saleOrder.getOrderItems());
+
+        saleOrder.setTotal(totalItem);
+        saleOrder.setTotalPrice(total);
+
+        saleOrder = saleOrderRepo.findById(saleOrder.getId()).orElse(null);
+
         response.setItem(saleOrder);
         response.setSuccess();
 
@@ -258,8 +294,9 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse getCurrentCart(SessionEntity info) {
-        GetSingleResponse<SaleOrderResponse> response = new GetSingleResponse<>();
+        GetSingleResponse<SaleOrder> response = new GetSingleResponse<>();
 
         SaleOrder saleOrder = saleOrderRepo.findFirstByStatusAndCreateBy(0, info.getUsername());
 
@@ -268,13 +305,15 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
             saleOrder.setPhone(info.getPhone());
             saleOrder.setCreateBy(info.getUsername());
             saleOrder.setCustomerAddress(info.getAddress());
+            saleOrder.setTotal(0D);
+            saleOrder.setTotalPrice(0D);
             saleOrder.setUser(userRepo.findFirstByUsername(info.getUsername()));
             saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.MUA_HANG.toString()));
 
             saleOrderRepo.save(saleOrder);
         }
 
-        response.setItem(new SaleOrderResponse(saleOrder));
+        response.setItem(saleOrder);
         response.setSuccess();
 
         return response;
@@ -282,7 +321,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResponse payment(SessionEntity info) {
+    public BaseResponse payment(SessionEntity info, PaymentRequest request) {
         GetSingleResponse<SaleOrderResponse> response = new GetSingleResponse<>();
 
         SaleOrder saleOrder = saleOrderRepo.findFirstByStatusAndCreateBy(0, info.getUsername());
@@ -299,9 +338,9 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
 
         User user = saleOrder.getUser();
 
-        if (user.getAmount() < total) {
-            throw new InvalidException("Your money do not enough to purchase");
-        }
+//        if (user.getAmount() < total) {
+//            throw new InvalidException("Your money do not enough to purchase");
+//        }
 
         user.setAmount(user.getAmount() - total);
         userRepo.save(user);
@@ -309,11 +348,15 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
         for (OrderItem o : saleOrder.getOrderItems()) {
             Product product = o.getProduct();
             product.setCurrentNumber(product.getCurrentNumber() - o.getQuantity());
+            product.setQuantitySelled(product.getQuantitySelled() + o.getQuantity());
             productRepo.save(product);
             o.setStatus(1);
             orderItemRepo.save(o);
         }
 
+        saleOrder.setCustomerAddress(request.getAddress());
+        saleOrder.setPhone(request.getPhone());
+        saleOrder.setName(request.getLastName() + " " + request.getFirstName());
         saleOrder.setUpdateBy(info.getUsername());
         saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.CHO_XAC_NHAN.toString()));
         saleOrder.setStatus(1);
@@ -327,6 +370,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse submitSaleOrder(SessionEntity info, Long saleOrderId) {
         GetSingleResponse<SaleOrderResponse> response = new GetSingleResponse<>();
 
@@ -337,13 +381,24 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
         } else {
             SaleOrder saleOrder = optional.get();
 
-            if (saleOrder.getStatus() != 1) {
+            if (saleOrder.getStatus() < 1) {
                 throw new InvalidException("Sale order is not wait submit");
             }
 
-            saleOrder.setStatus(2);
-            saleOrder.setUpdateBy(info.getUsername());
-            saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.DANG_GIAO_HANG.toString()));
+            switch (saleOrder.getStatus()) {
+                case 1:
+                    saleOrder.setStatus(2);
+                    saleOrder.setUpdateBy(info.getUsername());
+                    saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.DANG_GIAO_HANG.toString()));
+                    break;
+                case 2:
+                    saleOrder.setStatus(3);
+                    saleOrder.setUpdateBy(info.getUsername());
+                    saleOrder.setDelivery(deliveryRepo.findFirstByIndex(EDelivery.GIAO_HANG_THANH_CONG.toString()));
+                    break;
+                default:
+                    break;
+            }
 
             saleOrderRepo.save(saleOrder);
             response.setItem(new SaleOrderResponse(saleOrder));
@@ -353,7 +408,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
         return response;
     }
 
-    public Double total(List<OrderItem> items) {
+    private Double total(List<OrderItem> items) {
         Double sum = 0D;
         for (OrderItem o : items) {
             sum += o.getQuantity() * o.getProduct().getPrice();
@@ -361,11 +416,29 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
         return sum;
     }
 
-    public Integer tryParse(String value) {
+    private Double totalItem(List<OrderItem> items) {
+        Double sum = 0D;
+        for (OrderItem o : items) {
+            sum += o.getQuantity();
+        }
+        return sum;
+    }
+
+    private Integer tryParse(String value) {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    void updateStatusSaleOrder() {
+        List<SaleOrder> saleOrders = saleOrderRepo.findAll();
+        for (SaleOrder s : saleOrders) {
+            if (s.getOrderItems().size() == 0) {
+                s.setStatus(-1);
+            }
         }
     }
 }

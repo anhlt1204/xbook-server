@@ -56,7 +56,7 @@ public class AdminUserController extends BaseController {
         if (request == null) {
             throw new InvalidException("Params invalid");
         } else {
-            request.validate(false);
+//            request.validate(false);
             response = userService.create(request, info);
         }
 

@@ -17,7 +17,10 @@ public class SaleOrder extends BaseEntity {
 
     private String phone;
 
+    private String name;
+
     private Double total;
+    private Double totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
