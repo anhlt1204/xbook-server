@@ -436,7 +436,7 @@ public class SaleOrderServiceImpl extends BaseService implements SaleOrderServic
     void updateStatusSaleOrder() {
         List<SaleOrder> saleOrders = saleOrderRepo.findAll();
         for (SaleOrder s : saleOrders) {
-            if (s.getOrderItems().size() == 0) {
+            if (s.getOrderItems().size() == 0 || s.getStatus() == 0) {
                 s.setStatus(-1);
             }
         }
